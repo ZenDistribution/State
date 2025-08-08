@@ -15,7 +15,4 @@
 #include <zend/state/state.hpp>
 
 namespace zend::state {
-    const char * state::get_version() {
-        return version_;
-    }
 }
