@@ -23,7 +23,7 @@ namespace zend::state {
     class state : public std::enable_shared_from_this<state> {
         static constexpr char version_[] = "1.0.0";
     public:
-        static const char * get_version() ;
+        static constexpr std::string_view get_version() noexcept { return version_; }
     };
 }
 

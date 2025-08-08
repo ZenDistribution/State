@@ -16,5 +16,5 @@
 #include <zend/state/state.hpp>
 
 TEST(state_test, get_version) {
-    EXPECT_STREQ(zend::state::state::get_version(), "1.0.0");
+    EXPECT_EQ(zend::state::state::get_version(), "1.0.0");
 }
