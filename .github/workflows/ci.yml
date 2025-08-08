@@ -1,6 +1,13 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    paths:
+      - '**/*.cc'
+      - '**/*.cpp'
+      - '**/*.hpp'
+      - 'CMakeLists.txt'
+      - '.github/workflows/ci.yml'
 
 jobs:
   build:
