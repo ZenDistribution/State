@@ -1,0 +1,18 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: iantorres/boosted:1.87.0-debug
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+          cmake --build build --parallel
+          ctest --test-dir build --output-on-failure
