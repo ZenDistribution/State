@@ -12,9 +12,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <zend/state.hpp>
+#pragma once
 
-TEST(state_test, get_version) {
-    EXPECT_EQ(zend::state::state::get_version(), "1.0.0");
-}
+#ifndef ZEND_DEBUG_HPP
+#define ZEND_DEBUG_HPP
+
+#ifndef NDEBUG
+
+#include <iostream>
+
+    #define PRINT_LOCATION  \
+    do { \
+    std::cout << __FILE__ << ":" << __LINE__ << " " << __PRETTY_FUNCTION__ << std::endl; \
+    BOOST_ASIO_HANDLER_LOCATION((__FILE__, __LINE__, __PRETTY_FUNCTION__)); \
+    } while(0)
+#else
+    #define PRINT_LOCATION do { } while(0)
+#endif
+
+#endif // ZEND_DEBUG_HPP

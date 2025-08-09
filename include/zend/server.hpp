@@ -14,17 +14,29 @@
 
 #pragma once
 
-#ifndef ZEND_STATE_STATE_HPP
-#define ZEND_STATE_STATE_HPP
+#ifndef ZEND_SERVER_HPP
+#define ZEND_SERVER_HPP
 
-#include <memory>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
-namespace zend::state {
-    class state : public std::enable_shared_from_this<state> {
-        static constexpr char version_[] = "1.0.0";
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
+
+namespace zend {
+    struct configuration;
+
+    class server : public boost::enable_shared_from_this<server> {
+        boost::asio::ip::tcp::acceptor acceptor_;
     public:
-        static constexpr std::string_view get_version() noexcept { return version_; }
+        server(boost::asio::io_context &io_context, const configuration &configuration);
+
+        void start();
+    private:
+        void do_accept();
+
+        void on_accept(const boost::system::error_code &ec, boost::asio::ip::tcp::socket socket);
     };
+
 }
 
-#endif // ZEND_STATE_STATE_HPP
+#endif // ZEND_SERVER_HPP

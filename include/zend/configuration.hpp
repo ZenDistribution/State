@@ -12,9 +12,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <zend/state.hpp>
+#pragma once
 
-TEST(state_test, get_version) {
-    EXPECT_EQ(zend::state::state::get_version(), "1.0.0");
+#ifndef ZEND_CONFIGURATION_HPP
+#define ZEND_CONFIGURATION_HPP
+
+namespace zend {
+    struct configuration {
+        short port_;
+        short threads_;
+    };
 }
+
+#endif // ZEND_CONFIGURATION_HPP
