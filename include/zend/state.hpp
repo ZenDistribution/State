@@ -12,7 +12,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <zend/state/state.hpp>
+#pragma once
 
-namespace zend::state {
-}
+#ifndef ZEND_STATE_HPP
+#define ZEND_STATE_HPP
+
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
+
+namespace zend {
+class state : public boost::enable_shared_from_this<state> {
+  static constexpr char version_[] = "1.0.0";
+
+public:
+  static constexpr std::string_view get_version() noexcept { return version_; }
+};
+} // namespace zend
+
+#endif // ZEND_STATE_HPP
