@@ -21,31 +21,24 @@
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
-#include <zend/debug.hpp>
-
 namespace zend {
-    class connection : public boost::enable_shared_from_this<connection>
-    {
-        boost::beast::flat_buffer buffer_;
-        std::vector<boost::shared_ptr<std::string const>> queue_;
-        boost::asio::ip::tcp::socket socket_;
-    public:
-        explicit connection(boost::asio::ip::tcp::socket socket);
+class connection : public boost::enable_shared_from_this<connection> {
+  boost::beast::flat_buffer buffer_;
+  std::vector<boost::shared_ptr<std::string const>> queue_;
+  boost::asio::ip::tcp::socket socket_;
 
-        void start();
+public:
+  explicit connection(boost::asio::ip::tcp::socket socket);
+  void start();
+  void send(boost::shared_ptr<std::string const> const &ss);
 
-        void send(boost::shared_ptr<std::string const> const & ss);
+private:
+  static void fail(const boost::system::error_code &ec, char const *what);
+  void on_read(const boost::system::error_code &ec, std::size_t length);
+  void on_send(boost::shared_ptr<std::string const> const &ss);
+  void on_write(const boost::system::error_code &ec, std::size_t length);
+};
 
-    private:
-        static void fail(const boost::system::error_code &ec, char const* what);
-
-        void on_read(const boost::system::error_code & ec, std::size_t length);
-
-        void on_send(boost::shared_ptr<std::string const> const & ss);
-
-        void on_write(const boost::system::error_code &ec, std::size_t length);
-    };
-
-}
+} // namespace zend
 
 #endif // ZEND_CONNECTION_HPP

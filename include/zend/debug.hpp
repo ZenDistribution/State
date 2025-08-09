@@ -21,13 +21,16 @@
 
 #include <iostream>
 
-    #define PRINT_LOCATION  \
-    do { \
-    std::cout << __FILE__ << ":" << __LINE__ << " " << __PRETTY_FUNCTION__ << std::endl; \
-    BOOST_ASIO_HANDLER_LOCATION((__FILE__, __LINE__, __PRETTY_FUNCTION__)); \
-    } while(0)
+#define PRINT_LOCATION                                                         \
+  do {                                                                         \
+    std::cout << __FILE__ << ":" << __LINE__ << " " << __PRETTY_FUNCTION__     \
+              << std::endl;                                                    \
+    BOOST_ASIO_HANDLER_LOCATION((__FILE__, __LINE__, __PRETTY_FUNCTION__));    \
+  } while (0)
 #else
-    #define PRINT_LOCATION do { } while(0)
+#define PRINT_LOCATION                                                         \
+  do {                                                                         \
+  } while (0)
 #endif
 
 #endif // ZEND_DEBUG_HPP

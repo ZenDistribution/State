@@ -17,26 +17,27 @@
 #ifndef ZEND_SERVER_HPP
 #define ZEND_SERVER_HPP
 
-#include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 namespace zend {
-    struct configuration;
+struct configuration;
 
-    class server : public boost::enable_shared_from_this<server> {
-        boost::asio::ip::tcp::acceptor acceptor_;
-    public:
-        server(boost::asio::io_context &io_context, const configuration &configuration);
+class server : public boost::enable_shared_from_this<server> {
+  boost::asio::ip::tcp::acceptor acceptor_;
 
-        void start();
-    private:
-        void do_accept();
+public:
+  server(boost::asio::io_context &io_context,
+         const configuration &configuration);
+  void start();
 
-        void on_accept(const boost::system::error_code &ec, boost::asio::ip::tcp::socket socket);
-    };
+private:
+  void do_accept();
+  void on_accept(const boost::system::error_code &ec,
+                 boost::asio::ip::tcp::socket socket);
+};
 
-}
+} // namespace zend
 
 #endif // ZEND_SERVER_HPP

@@ -21,80 +21,87 @@
 
 #include <boost/smart_ptr/make_shared.hpp>
 
+#include <zend/debug.hpp>
+
 namespace zend {
-    connection::connection(boost::asio::ip::tcp::socket socket)
-          : socket_(std::move(socket))
-    {
-        PRINT_LOCATION;
-    }
-
-    void connection::start()
-    {
-        PRINT_LOCATION;
-
-        boost::asio::async_read(socket_, buffer_,
-            boost::beast::bind_front_handler(&connection::on_read, shared_from_this()));
-    }
-
-    void connection::send(boost::shared_ptr<std::string const> const &ss) {
-        PRINT_LOCATION;
-
-        boost::asio::post(socket_.get_executor(), boost::beast::bind_front_handler(&connection::on_send, shared_from_this(), ss));
-    }
-
-    void connection::fail(const boost::system::error_code &ec, char const *what)
-    {
-        PRINT_LOCATION;
-
-        std::cerr << what << ": " << ec.message() << "\n";
-    }
-
-    void connection::on_read(const boost::system::error_code &ec, const std::size_t length)
-    {
-        PRINT_LOCATION;
-
-        boost::ignore_unused(length);
-
-        if(ec) {
-            return fail(ec, "on_read");
-        }
-
-        auto const ss = boost::make_shared<std::string const>(std::move(boost::beast::buffers_to_string(buffer_.data())));
-
-        send(ss);
-
-        buffer_.consume(buffer_.size());
-
-        boost::asio::async_read(socket_, buffer_,
-            boost::beast::bind_front_handler(&connection::on_read, shared_from_this()));
-    }
-
-    void connection::on_send(boost::shared_ptr<std::string const> const &ss) {
-        PRINT_LOCATION;
-
-        queue_.push_back(ss);
-
-        if (queue_.size() > 1)
-            return;
-
-        boost::asio::async_write(socket_, boost::asio::buffer(*queue_.front()),
-            boost::beast::bind_front_handler(&connection::on_write, shared_from_this()));
-    }
-
-    void connection::on_write(const boost::system::error_code &ec, std::size_t length) {
-        PRINT_LOCATION;
-
-        boost::ignore_unused(length);
-
-        if (ec) {
-            return fail(ec, "on_write");
-        }
-
-        queue_.erase(queue_.begin());
-
-        if (! queue_.empty()) {
-            boost::asio::async_write(socket_, boost::asio::buffer(*queue_.front()),
-                boost::beast::bind_front_handler(&connection::on_write, shared_from_this()));
-        }
-    }
+connection::connection(boost::asio::ip::tcp::socket socket)
+    : socket_(std::move(socket)) {
+  PRINT_LOCATION;
 }
+
+void connection::start() {
+  PRINT_LOCATION;
+
+  boost::asio::async_read(socket_, buffer_,
+                          boost::beast::bind_front_handler(&connection::on_read,
+                                                           shared_from_this()));
+}
+
+void connection::send(boost::shared_ptr<std::string const> const &ss) {
+  PRINT_LOCATION;
+
+  boost::asio::post(socket_.get_executor(),
+                    boost::beast::bind_front_handler(&connection::on_send,
+                                                     shared_from_this(), ss));
+}
+
+void connection::fail(const boost::system::error_code &ec, char const *what) {
+  PRINT_LOCATION;
+
+  std::cerr << what << ": " << ec.message() << "\n";
+}
+
+void connection::on_read(const boost::system::error_code &ec,
+                         const std::size_t length) {
+  PRINT_LOCATION;
+
+  boost::ignore_unused(length);
+
+  if (ec) {
+    return fail(ec, "on_read");
+  }
+
+  auto const ss = boost::make_shared<std::string const>(
+      boost::beast::buffers_to_string(buffer_.data()));
+
+  send(ss);
+
+  buffer_.consume(buffer_.size());
+
+  boost::asio::async_read(socket_, buffer_,
+                          boost::beast::bind_front_handler(&connection::on_read,
+                                                           shared_from_this()));
+}
+
+void connection::on_send(boost::shared_ptr<std::string const> const &ss) {
+  PRINT_LOCATION;
+
+  queue_.push_back(ss);
+
+  if (queue_.size() > 1)
+    return;
+
+  boost::asio::async_write(socket_, boost::asio::buffer(*queue_.front()),
+                           boost::beast::bind_front_handler(
+                               &connection::on_write, shared_from_this()));
+}
+
+void connection::on_write(const boost::system::error_code &ec,
+                          std::size_t length) {
+  PRINT_LOCATION;
+
+  boost::ignore_unused(length);
+
+  if (ec) {
+    return fail(ec, "on_write");
+  }
+
+  queue_.erase(queue_.begin());
+
+  if (!queue_.empty()) {
+    boost::asio::async_write(socket_, boost::asio::buffer(*queue_.front()),
+                             boost::beast::bind_front_handler(
+                                 &connection::on_write, shared_from_this()));
+  }
+}
+} // namespace zend

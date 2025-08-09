@@ -20,11 +20,12 @@
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 namespace zend {
-    class state : public boost::enable_shared_from_this<state> {
-        static constexpr char version_[] = "1.0.0";
-    public:
-        static constexpr std::string_view get_version() noexcept { return version_; }
-    };
-}
+class state : public boost::enable_shared_from_this<state> {
+  static constexpr char version_[] = "1.0.0";
+
+public:
+  static constexpr std::string_view get_version() noexcept { return version_; }
+};
+} // namespace zend
 
 #endif // ZEND_STATE_HPP

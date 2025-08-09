@@ -18,10 +18,10 @@
 #define ZEND_CONFIGURATION_HPP
 
 namespace zend {
-    struct configuration {
-        short port_;
-        short threads_;
-    };
-}
+struct configuration {
+  short port_;
+  short threads_;
+};
+} // namespace zend
 
 #endif // ZEND_CONFIGURATION_HPP
