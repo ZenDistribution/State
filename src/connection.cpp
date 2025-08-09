@@ -14,6 +14,7 @@
 
 #include <zend/connection.hpp>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/asio/read.hpp>
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
@@ -61,10 +62,11 @@ void connection::on_read(const boost::system::error_code &ec,
     return fail(ec, "on_read");
   }
 
-  std::string_view _view(buffer_.data(), length);
-  auto const _stream = boost::make_shared<std::string const>(_view);
-
-  send(_stream);
+  if (const std::string _view(buffer_.data(), length);
+      boost::starts_with(_view, "PING")) {
+    auto const _stream = boost::make_shared<std::string const>("PONG");
+    send(_stream);
+  }
 
   socket_.async_read_some(boost::asio::buffer(buffer_),
                           boost::beast::bind_front_handler(&connection::on_read,

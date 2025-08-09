@@ -9,7 +9,7 @@
 namespace zend {
 app::app(int argc, char *argv[]) {
   PRINT_LOCATION;
-  configuration_ = {.port_ = 8033, .threads_ = 10};
+  configuration_ = {.port_ = 0, .threads_ = 10};
 }
 
 int app::run() {
@@ -36,4 +36,8 @@ int app::run() {
 
   return EXIT_SUCCESS;
 }
+
+void app::stop() { io_context_.stop(); }
+
+configuration &app::get_configuration() { return configuration_; }
 } // namespace zend

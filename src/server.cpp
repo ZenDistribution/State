@@ -23,11 +23,16 @@
 
 namespace zend {
 server::server(boost::asio::io_context &io_context,
-               const configuration &configuration)
-    : acceptor_(io_context,
+               configuration &configuration)
+    : configuration_(configuration),
+      acceptor_(io_context,
                 boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
                                                configuration.port_)) {
   PRINT_LOCATION;
+
+  if (configuration_.port_ == 0) {
+    configuration_.port_ = acceptor_.local_endpoint().port();
+  }
 }
 
 void server::start() {

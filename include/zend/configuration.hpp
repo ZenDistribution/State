@@ -19,7 +19,7 @@
 
 namespace zend {
 struct configuration {
-  short port_;
+  unsigned short port_;
   short threads_;
 };
 } // namespace zend

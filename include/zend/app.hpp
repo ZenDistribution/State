@@ -29,6 +29,10 @@ public:
   app(int argc, char *argv[]);
 
   int run();
+
+  void stop();
+
+  configuration &get_configuration();
 };
 } // namespace zend
 

@@ -25,11 +25,11 @@ namespace zend {
 struct configuration;
 
 class server : public boost::enable_shared_from_this<server> {
+  configuration &configuration_;
   boost::asio::ip::tcp::acceptor acceptor_;
 
 public:
-  server(boost::asio::io_context &io_context,
-         const configuration &configuration);
+  server(boost::asio::io_context &io_context, configuration &configuration);
   void start();
 
 private:
