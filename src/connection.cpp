@@ -15,9 +15,9 @@
 #include <zend/connection.hpp>
 
 #include <boost/asio/read.hpp>
+#include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/beast/core/bind_handler.hpp>
-#include <boost/beast/core/buffers_to_string.hpp>
 
 #include <boost/smart_ptr/make_shared.hpp>
 
@@ -25,14 +25,14 @@
 
 namespace zend {
 connection::connection(boost::asio::ip::tcp::socket socket)
-    : socket_(std::move(socket)) {
+    : buffer_(), socket_(std::move(socket)) {
   PRINT_LOCATION;
 }
 
 void connection::start() {
   PRINT_LOCATION;
 
-  boost::asio::async_read(socket_, buffer_,
+  socket_.async_read_some(boost::asio::buffer(buffer_),
                           boost::beast::bind_front_handler(&connection::on_read,
                                                            shared_from_this()));
 }
@@ -61,14 +61,12 @@ void connection::on_read(const boost::system::error_code &ec,
     return fail(ec, "on_read");
   }
 
-  auto const ss = boost::make_shared<std::string const>(
-      boost::beast::buffers_to_string(buffer_.data()));
+  std::string_view _view(buffer_.data(), length);
+  auto const _stream = boost::make_shared<std::string const>(_view);
 
-  send(ss);
+  send(_stream);
 
-  buffer_.consume(buffer_.size());
-
-  boost::asio::async_read(socket_, buffer_,
+  socket_.async_read_some(boost::asio::buffer(buffer_),
                           boost::beast::bind_front_handler(&connection::on_read,
                                                            shared_from_this()));
 }
