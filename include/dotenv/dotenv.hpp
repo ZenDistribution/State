@@ -107,6 +107,14 @@ public:
 
 private:
   static void do_init(int flags, const char *filename);
+  static void handle_line(int flags, unsigned int i, const std::string& line);
+  static bool handle_var(size_t iline,
+                               const std::string& str,
+                               size_t pos_start,
+                               const std::string& start_tag,
+                               std::string& resolved,
+                               size_t& pre_pos,
+                               size_t& nvar);
   static std::string strip_quotes(const std::string &str);
 
   static std::pair<std::string, bool> resolve_vars(size_t iline,
@@ -194,11 +202,11 @@ inline int setenv(const char *name, const char *value, int overwrite) {
 /// \returns The start position of next variable expression or std::string::npos
 /// if not found
 ///
-inline size_t dotenv::find_var_start(std::string_view str, size_t pos,
+inline size_t dotenv::find_var_start(std::string_view str, const size_t pos,
                                      std::string &start_tag) {
-  size_t p1 = str.find('$', pos);
-  size_t p2 = str.find("${", pos);
-  size_t pos_var = (std::min)(p1, p2);
+  const size_t p1 = str.find('$', pos);
+  const size_t p2 = str.find("${", pos);
+  const size_t pos_var = (std::min)(p1, p2);
   if (pos_var != std::string::npos)
     start_tag = (pos_var == p2) ? "${" : "$";
   return pos_var;
@@ -228,8 +236,8 @@ inline size_t dotenv::find_var_end(std::string_view str, size_t pos,
 
 // trim whitespace from left (in place)
 inline void dotenv::ltrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-                                  [](int c) { return !std::isspace(c); }));
+  s.erase(s.begin(), std::ranges::find_if(s,
+                                          [](const int c) { return !std::isspace(c); }));
 }
 
 // trim whitespace from right (in place)
@@ -252,117 +260,107 @@ inline std::string dotenv::trim_copy(std::string s) {
   return s;
 }
 
+inline bool dotenv::handle_var(size_t iline,
+                               const std::string& str,
+                               const size_t pos_start,
+                               const std::string& start_tag,
+                               std::string& resolved,
+                               size_t& pre_pos,
+                               size_t& nvar) {
+  const size_t lstart = start_tag.length();
+  const size_t lend   = (lstart > 1) ? 1 : 0;
+
+  resolved += str.substr(pre_pos, pos_start - pre_pos);
+
+  const size_t pos_end = find_var_end(str, pos_start, start_tag);
+  if (pos_end == std::string::npos) {
+    return false;
+  }
+
+  const std::string var = str.substr(pos_start, pos_end - pos_start + 1);
+  std::string env_var = var.substr(lstart, var.length() - lstart - lend);
+  rtrim(env_var);
+
+  if (const char* env_str = std::getenv(env_var.c_str())) {
+    resolved += env_str;
+    --nvar;  // resuelta
+  } else {
+    std::cout << "dotenv: Variable " << var
+              << " is not defined on line " << iline << std::endl;
+  }
+
+  // salta el tag de cierre
+  pre_pos = pos_end + lend;
+  return true;
+}
+
 ///
 /// Resolve variables of the form $VARIABLE or ${VARIABLE} in a string
 ///
 /// \param iline line number in .env file
 /// \param str   the string to be resolved, containing 0 or more variables
+/// \param pos_start
 /// \param ok    true on return if no variables found or all variables resolved
 /// ok
 ///
 /// \returns pair with <resolved, true> if ok, or <partial, false> if error
 ///
 inline std::pair<std::string, bool>
-dotenv::resolve_vars(size_t iline, const std::string &str) {
+dotenv::resolve_vars(size_t iline, const std::string& str) {
   std::string resolved;
+  size_t pos = 0, pre_pos = 0, nvar = 0;
 
-  size_t pos = 0;
-  size_t pre_pos = pos;
-  size_t nvar = 0;
-
-  bool finished = false;
-  while (!finished) {
-    // look for start of variable expression after pos
+  for (;;) {
     std::string start_tag;
-    pos = find_var_start(str, pos, start_tag);
-    if (pos != std::string::npos) {
-      // a variable definition detected
-      nvar++;
+    size_t pos_start = find_var_start(str, pos, start_tag);
+    if (pos_start == std::string::npos) break;
 
-      // keep start of variable expression
-      size_t pos_start = pos;
+    ++nvar;
 
-      size_t lstart = start_tag.length(); // length of start tag
-      size_t lend = (lstart > 1) ? 1 : 0; // length of end tag
-
-      // add substring since last variable
-      resolved += str.substr(pre_pos, pos - pre_pos);
-
-      // look for end of variable expression
-      pos = find_var_end(str, pos, start_tag);
-      if (pos != std::string::npos) {
-        // variable name with decoration
-        std::string var = str.substr(pos_start, pos - pos_start + 1);
-
-        // variable name without decoration
-        std::string env_var = var.substr(lstart, var.length() - lstart - lend);
-
-        // remove possible whitespace at the end
-        rtrim(env_var);
-
-        // evaluate environment variable
-        if (const char *env_str = std::getenv(env_var.c_str())) {
-          resolved += env_str;
-          nvar--; // decrement to indicate variable resolved
-        } else {
-          // could not resolve the variable, so don't decrement
-          std::cout << "dotenv: Variable " << var << " is not defined on line "
-                    << iline << std::endl;
-        }
-
-        // skip end tag
-        pre_pos = pos + lend;
-      }
-    } else {
-      // no more variables
-      finished = true;
-    }
+    const bool ok = handle_var(iline, str, pos_start, start_tag, resolved, pre_pos, nvar);
+    pos = ok ? pre_pos : pos_start + 1;
   }
 
-  // add possible trailing non-whitespace after last variable
   if (pre_pos < str.length()) {
     resolved += str.substr(pre_pos);
   }
 
-  // nvar must be 0, or else we have an error
-  return std::make_pair(resolved, (nvar == 0));
+  return {resolved, nvar == 0};
 }
 
-inline void dotenv::do_init(int flags, const char *filename) {
-  std::ifstream file;
+inline void dotenv::handle_line(const int flags, const unsigned int i, const std::string& line) {
+  const auto pos = line.find('=');
+  if (pos == std::string::npos) {
+    std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
+              << ": '" << line << "'" << std::endl;
+    return;
+  }
+
+  const auto name = trim_copy(line.substr(0, pos));
+  const auto line_stripped = strip_quotes(trim_copy(line.substr(pos + 1)));
+
+  auto [val, ok] = resolve_vars(i, line_stripped);
+  if (!ok) {
+    std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
+              << ": '" << line << "'" << std::endl;
+    return;
+  }
+
+  setenv(name.c_str(), val.c_str(), ~flags & dotenv::Preserve);
+}
+
+inline void dotenv::do_init(const int flags, const char* filename) {
+  std::ifstream file(filename);
+  if (!file) return;
+
   std::string line;
+  unsigned int i = 1;
 
-  file.open(filename);
-
-  if (file) {
-    unsigned int i = 1;
-
-    while (getline(file, line)) {
-      if (const auto len = line.length(); len == 0 || line[0] == '#') {
-        continue;
-      }
-
-      if (const auto pos = line.find("="); pos == std::string::npos) {
-        std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
-                  << ": '" << line << "'" << std::endl;
-      } else {
-        auto name = trim_copy(line.substr(0, pos));
-        auto line_stripped = strip_quotes(trim_copy(line.substr(pos + 1)));
-
-        // resolve any contained variable expressions in 'line_stripped'
-        auto [fst, snd] = resolve_vars(i, line_stripped);
-        if (bool ok = snd; !ok) {
-          std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
-                    << ": '" << line << "'" << std::endl;
-        } else {
-
-          // variable resolved ok, set as environment variable
-          const auto &val = fst;
-          setenv(name.c_str(), val.c_str(), ~flags & dotenv::Preserve);
-        }
-      }
-      ++i;
+  while (std::getline(file, line)) {
+    if (!line.empty() && line[0] != '#') {
+      handle_line(flags, i, line);
     }
+    ++i;
   }
 }
 
