@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(state)
+project(zend)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,15 +16,15 @@ find_package(Boost 1.87 REQUIRED)
 
 file(GLOB_RECURSE LIB_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
-add_library(state ${LIB_TYPE} ${LIB_SOURCES})
+add_library(zend ${LIB_TYPE} ${LIB_SOURCES})
 
-target_include_directories(state
+target_include_directories(zend
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-target_include_directories(state PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(zend PUBLIC ${Boost_INCLUDE_DIRS})
 
 if(BUILD_TESTS)
     include(FetchContent)
@@ -39,13 +39,13 @@ if(BUILD_TESTS)
 
     file(GLOB TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cc)
 
-    add_executable(state_tests ${LIB_SOURCES} ${TEST_SOURCES})
-    target_link_libraries(state_tests PRIVATE state GTest::gtest_main)
+    add_executable(zend_tests ${LIB_SOURCES} ${TEST_SOURCES})
+    target_link_libraries(zend_tests PRIVATE zend GTest::gtest_main)
 
     include(GoogleTest)
-    gtest_discover_tests(state_tests)
+    gtest_discover_tests(zend_tests)
 endif ()
 
-add_executable(state_app main.cpp)
-target_link_libraries(state_app PRIVATE state)
-target_include_directories(state_app PRIVATE ${Boost_INCLUDE_DIRS})
+add_executable(zend_app main.cpp)
+target_link_libraries(zend_app PRIVATE zend)
+target_include_directories(zend_app PRIVATE ${Boost_INCLUDE_DIRS})

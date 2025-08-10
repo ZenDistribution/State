@@ -20,9 +20,12 @@
 #include <boost/array.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 namespace zend {
 class connection : public boost::enable_shared_from_this<connection> {
+  boost::uuids::uuid id_ = boost::uuids::random_generator()();
   boost::array<char, 1024> buffer_{};
   std::vector<boost::shared_ptr<std::string const>> queue_;
   boost::asio::ip::tcp::socket socket_;
