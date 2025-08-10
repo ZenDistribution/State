@@ -12,8 +12,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef ZEND_APP_HPP
-#define ZEND_APP_HPP
+#ifndef ZEND_INSTANCE_HPP
+#define ZEND_INSTANCE_HPP
 
 #include <boost/asio/io_context.hpp>
 
@@ -21,12 +21,12 @@
 
 namespace zend {
 
-class app {
+class instance {
   configuration configuration_;
   boost::asio::io_context io_context_;
 
 public:
-  app(int argc, char *argv[]);
+  instance(int argc, char *argv[]);
 
   int run();
 
@@ -36,4 +36,4 @@ public:
 };
 } // namespace zend
 
-#endif // ZEND_APP_HPP
+#endif // ZEND_INSTANCE_HPP

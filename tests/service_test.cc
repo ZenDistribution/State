@@ -22,21 +22,21 @@
 
 #include <boost/asio.hpp>
 
-#include <zend/app.hpp>
 #include <zend/debug.hpp>
+#include <zend/service.hpp>
 #include <zend/state.hpp>
 
-class server_test : public ::testing::Test {
+class service_test : public ::testing::Test {
 public:
-  std::unique_ptr<zend::app> app_;
+  std::unique_ptr<zend::service> app_;
   std::jthread server_thread_;
 
 protected:
   void SetUp() override {
     int argc = 0;
-    std::array<char*, 0> argv{};
+    std::array<char *, 0> argv{};
 
-    app_ = std::make_unique<zend::app>(argc, argv.data());
+    app_ = std::make_unique<zend::service>(argc, argv.data());
 
     server_thread_ = std::jthread([this] {
       PRINT_LOCATION;
@@ -68,7 +68,7 @@ public:
   }
 };
 
-TEST_F(server_test, accept_connections_and_handle_ping) {
+TEST_F(service_test, can_accept_tcp_connections_and_handle_ping_requests) {
   boost::asio::io_context _client_io_context;
   boost::system::error_code _ec;
   boost::asio::ip::tcp::socket socket = make_connection(_client_io_context);

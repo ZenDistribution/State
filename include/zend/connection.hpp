@@ -20,8 +20,8 @@
 #include <boost/array.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
-#include <boost/uuid/uuid.hpp>
 #include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid.hpp>
 
 namespace zend {
 class connection : public boost::enable_shared_from_this<connection> {
