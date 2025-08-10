@@ -14,14 +14,24 @@
 
 #pragma once
 
-#ifndef ZEND_CONFIGURATION_HPP
-#define ZEND_CONFIGURATION_HPP
+#ifndef ZEND_SERVICE_CONFIGURATION_HPP
+#define ZEND_SERVICE_CONFIGURATION_HPP
 
-namespace zend {
-struct configuration {
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
+
+namespace zend::service {
+class configuration : public boost::enable_shared_from_this<configuration> {
   unsigned short port_;
   short threads_;
-};
-} // namespace zend
 
-#endif // ZEND_CONFIGURATION_HPP
+public:
+  configuration(unsigned short port, short threads);
+  unsigned short get_port() const;
+
+  void set_port(unsigned short port);
+
+  short get_threads() const;
+};
+} // namespace zend::service
+
+#endif // ZEND_SERVICE_CONFIGURATION_HPP

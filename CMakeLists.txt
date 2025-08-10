@@ -46,6 +46,10 @@ if(BUILD_TESTS)
     gtest_discover_tests(zend_tests)
 endif ()
 
-add_executable(zend_app main.cpp)
-target_link_libraries(zend_app PRIVATE zend)
-target_include_directories(zend_app PRIVATE ${Boost_INCLUDE_DIRS})
+add_executable(zend_service ${CMAKE_CURRENT_SOURCE_DIR}/binaries/service.cpp)
+target_link_libraries(zend_service PRIVATE zend)
+target_include_directories(zend_service PRIVATE ${Boost_INCLUDE_DIRS})
+
+add_executable(zend_instance ${CMAKE_CURRENT_SOURCE_DIR}/binaries/instance.cpp)
+target_link_libraries(zend_instance PRIVATE zend)
+target_include_directories(zend_instance PRIVATE ${Boost_INCLUDE_DIRS})

@@ -12,32 +12,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include <zend/service/configuration.hpp>
 
-#ifndef ZEND_SERVER_HPP
-#define ZEND_SERVER_HPP
+#include <zend/debug.hpp>
 
-#include <boost/asio/ip/tcp.hpp>
+namespace zend::service {
+configuration::configuration(const unsigned short port, const short threads)
+    : port_(port), threads_(threads) {
+  PRINT_LOCATION;
+}
 
-#include <boost/smart_ptr/enable_shared_from_this.hpp>
+unsigned short configuration::get_port() const {
+  PRINT_LOCATION;
+  return port_;
+}
 
-namespace zend {
-struct configuration;
+void configuration::set_port(const unsigned short port) {
+  PRINT_LOCATION;
+  port_ = port;
+}
 
-class server : public boost::enable_shared_from_this<server> {
-  configuration &configuration_;
-  boost::asio::ip::tcp::acceptor acceptor_;
-
-public:
-  server(boost::asio::io_context &io_context, configuration &configuration);
-  void start();
-
-private:
-  void do_accept();
-  void on_accept(const boost::system::error_code &ec,
-                 boost::asio::ip::tcp::socket socket);
-};
-
-} // namespace zend
-
-#endif // ZEND_SERVER_HPP
+short configuration::get_threads() const {
+  PRINT_LOCATION;
+  return threads_;
+}
+} // namespace zend::service

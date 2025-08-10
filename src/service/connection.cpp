@@ -12,7 +12,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <zend/connection.hpp>
+#include <zend/service/connection.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/read.hpp>
@@ -24,7 +24,7 @@
 
 #include <zend/debug.hpp>
 
-namespace zend {
+namespace zend::service {
 connection::connection(boost::asio::ip::tcp::socket socket)
     : socket_(std::move(socket)) {
   PRINT_LOCATION;
@@ -104,4 +104,4 @@ void connection::on_write(const boost::system::error_code &ec,
                                  &connection::on_write, shared_from_this()));
   }
 }
-} // namespace zend
+} // namespace zend::service
