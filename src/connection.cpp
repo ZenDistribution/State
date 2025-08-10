@@ -26,7 +26,7 @@
 
 namespace zend {
 connection::connection(boost::asio::ip::tcp::socket socket)
-    : buffer_(), socket_(std::move(socket)) {
+    : socket_(std::move(socket)) {
   PRINT_LOCATION;
 }
 

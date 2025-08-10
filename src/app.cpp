@@ -4,10 +4,13 @@
 
 #include <boost/smart_ptr/make_shared.hpp>
 
+#include <boost/core/ignore_unused.hpp>
 #include <thread>
 
 namespace zend {
 app::app(int argc, char *argv[]) {
+  boost::ignore_unused(argc, argv);
+
   PRINT_LOCATION;
   configuration_ = {.port_ = 0, .threads_ = 10};
 }
@@ -17,7 +20,7 @@ int app::run() {
   const auto _server = boost::make_shared<server>(io_context_, configuration_);
   _server->start();
 
-  std::vector<std::thread> _threads;
+  std::vector<std::jthread> _threads;
   for (int _i = 0; _i < configuration_.threads_ - 1; ++_i) {
     _threads.emplace_back([&ioc_ = io_context_]() {
       PRINT_LOCATION;
@@ -25,12 +28,6 @@ int app::run() {
     });
   }
   io_context_.run();
-
-  for (auto &_thread : _threads) {
-    PRINT_LOCATION;
-
-    _thread.join();
-  }
 
   PRINT_LOCATION;
 

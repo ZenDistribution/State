@@ -23,7 +23,7 @@
 
 namespace zend {
 class connection : public boost::enable_shared_from_this<connection> {
-  boost::array<char, 1024> buffer_;
+  boost::array<char, 1024> buffer_{};
   std::vector<boost::shared_ptr<std::string const>> queue_;
   boost::asio::ip::tcp::socket socket_;
 

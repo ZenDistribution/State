@@ -27,17 +27,18 @@
 #include <zend/state.hpp>
 
 class server_test : public ::testing::Test {
-protected:
+public:
   std::unique_ptr<zend::app> app_;
-  std::thread server_thread_;
+  std::jthread server_thread_;
 
+protected:
   void SetUp() override {
     int argc = 0;
     char *argv[] = {};
 
     app_ = std::make_unique<zend::app>(argc, argv);
 
-    server_thread_ = std::thread([this] {
+    server_thread_ = std::jthread([this] {
       PRINT_LOCATION;
       app_->run();
     });
@@ -48,10 +49,7 @@ protected:
     }
   }
 
-  void TearDown() override {
-    app_->stop();
-    server_thread_.join();
-  }
+  void TearDown() override { app_->stop(); }
 
 public:
   boost::asio::ip::tcp::socket
