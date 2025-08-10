@@ -107,14 +107,10 @@ public:
 
 private:
   static void do_init(int flags, const char *filename);
-  static void handle_line(int flags, unsigned int i, const std::string& line);
-  static bool handle_var(size_t iline,
-                               const std::string& str,
-                               size_t pos_start,
-                               const std::string& start_tag,
-                               std::string& resolved,
-                               size_t& pre_pos,
-                               size_t& nvar);
+  static void handle_line(int flags, unsigned int i, const std::string &line);
+  static bool handle_var(size_t iline, const std::string &str, size_t pos_start,
+                         const std::string &start_tag, std::string &resolved,
+                         size_t &pre_pos, size_t &nvar);
   static std::string strip_quotes(const std::string &str);
 
   static std::pair<std::string, bool> resolve_vars(size_t iline,
@@ -236,8 +232,8 @@ inline size_t dotenv::find_var_end(std::string_view str, size_t pos,
 
 // trim whitespace from left (in place)
 inline void dotenv::ltrim(std::string &s) {
-  s.erase(s.begin(), std::ranges::find_if(s,
-                                          [](const int c) { return !std::isspace(c); }));
+  s.erase(s.begin(), std::ranges::find_if(
+                         s, [](const int c) { return !std::isspace(c); }));
 }
 
 // trim whitespace from right (in place)
@@ -260,15 +256,13 @@ inline std::string dotenv::trim_copy(std::string s) {
   return s;
 }
 
-inline bool dotenv::handle_var(size_t iline,
-                               const std::string& str,
+inline bool dotenv::handle_var(size_t iline, const std::string &str,
                                const size_t pos_start,
-                               const std::string& start_tag,
-                               std::string& resolved,
-                               size_t& pre_pos,
-                               size_t& nvar) {
+                               const std::string &start_tag,
+                               std::string &resolved, size_t &pre_pos,
+                               size_t &nvar) {
   const size_t lstart = start_tag.length();
-  const size_t lend   = (lstart > 1) ? 1 : 0;
+  const size_t lend = (lstart > 1) ? 1 : 0;
 
   resolved += str.substr(pre_pos, pos_start - pre_pos);
 
@@ -281,12 +275,12 @@ inline bool dotenv::handle_var(size_t iline,
   std::string env_var = var.substr(lstart, var.length() - lstart - lend);
   rtrim(env_var);
 
-  if (const char* env_str = std::getenv(env_var.c_str())) {
+  if (const char *env_str = std::getenv(env_var.c_str())) {
     resolved += env_str;
-    --nvar;  // resuelta
+    --nvar; // resuelta
   } else {
-    std::cout << "dotenv: Variable " << var
-              << " is not defined on line " << iline << std::endl;
+    std::cout << "dotenv: Variable " << var << " is not defined on line "
+              << iline << std::endl;
   }
 
   // salta el tag de cierre
@@ -306,7 +300,7 @@ inline bool dotenv::handle_var(size_t iline,
 /// \returns pair with <resolved, true> if ok, or <partial, false> if error
 ///
 inline std::pair<std::string, bool>
-dotenv::resolve_vars(size_t iline, const std::string& str) {
+dotenv::resolve_vars(size_t iline, const std::string &str) {
   std::string resolved;
   size_t pos = 0;
   size_t pre_pos = 0;
@@ -315,11 +309,13 @@ dotenv::resolve_vars(size_t iline, const std::string& str) {
   for (;;) {
     std::string start_tag;
     size_t pos_start = find_var_start(str, pos, start_tag);
-    if (pos_start == std::string::npos) break;
+    if (pos_start == std::string::npos)
+      break;
 
     ++nvar;
 
-    const bool ok = handle_var(iline, str, pos_start, start_tag, resolved, pre_pos, nvar);
+    const bool ok =
+        handle_var(iline, str, pos_start, start_tag, resolved, pre_pos, nvar);
     pos = ok ? pre_pos : pos_start + 1;
   }
 
@@ -330,11 +326,12 @@ dotenv::resolve_vars(size_t iline, const std::string& str) {
   return {resolved, nvar == 0};
 }
 
-inline void dotenv::handle_line(const int flags, const unsigned int i, const std::string& line) {
+inline void dotenv::handle_line(const int flags, const unsigned int i,
+                                const std::string &line) {
   const auto pos = line.find('=');
   if (pos == std::string::npos) {
-    std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
-              << ": '" << line << "'" << std::endl;
+    std::cout << "dotenv: Ignoring ill-formed assignment on line " << i << ": '"
+              << line << "'" << std::endl;
     return;
   }
 
@@ -343,17 +340,18 @@ inline void dotenv::handle_line(const int flags, const unsigned int i, const std
 
   auto [val, ok] = resolve_vars(i, line_stripped);
   if (!ok) {
-    std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
-              << ": '" << line << "'" << std::endl;
+    std::cout << "dotenv: Ignoring ill-formed assignment on line " << i << ": '"
+              << line << "'" << std::endl;
     return;
   }
 
   setenv(name.c_str(), val.c_str(), ~flags & dotenv::Preserve);
 }
 
-inline void dotenv::do_init(const int flags, const char* filename) {
+inline void dotenv::do_init(const int flags, const char *filename) {
   std::ifstream file(filename);
-  if (!file) return;
+  if (!file)
+    return;
 
   std::string line;
   unsigned int i = 1;
@@ -374,7 +372,8 @@ inline std::string dotenv::strip_quotes(const std::string &str) {
 
   const char first = str[0];
 
-  if (const char last = str[len - 1]; first == last && ('"' == first || '\'' == first))
+  if (const char last = str[len - 1];
+      first == last && ('"' == first || '\'' == first))
     return str.substr(1, len - 2);
 
   return str;
