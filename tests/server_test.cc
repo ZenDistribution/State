@@ -34,9 +34,9 @@ public:
 protected:
   void SetUp() override {
     int argc = 0;
-    char *argv[] = {};
+    std::array<char*, 0> argv{};
 
-    app_ = std::make_unique<zend::app>(argc, argv);
+    app_ = std::make_unique<zend::app>(argc, argv.data());
 
     server_thread_ = std::jthread([this] {
       PRINT_LOCATION;
