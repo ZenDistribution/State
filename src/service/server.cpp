@@ -12,46 +12,46 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <zend/configuration.hpp>
-#include <zend/connection.hpp>
-#include <zend/server.hpp>
+#include <zend/service/configuration.hpp>
+#include <zend/service/connection.hpp>
+#include <zend/service/listener.hpp>
 
 #include <boost/beast/core/bind_handler.hpp>
 #include <boost/smart_ptr.hpp>
 
 #include <zend/debug.hpp>
 
-namespace zend {
-server::server(boost::asio::io_context &io_context,
-               configuration &configuration)
+namespace zend::service {
+listener::listener(boost::asio::io_context &io_context,
+                   const boost::shared_ptr<configuration> &configuration)
     : configuration_(configuration),
       acceptor_(io_context,
                 boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(),
-                                               configuration.port_)) {
+                                               configuration->get_port())) {
   PRINT_LOCATION;
 
-  if (configuration_.port_ == 0) {
-    configuration_.port_ = acceptor_.local_endpoint().port();
+  if (configuration_->get_port() == 0) {
+    configuration->set_port(acceptor_.local_endpoint().port());
   }
 }
 
-void server::start() {
+void listener::start() {
   PRINT_LOCATION;
   do_accept();
 }
 
-void server::do_accept() {
+void listener::do_accept() {
   PRINT_LOCATION;
-  acceptor_.async_accept(
-      boost::beast::bind_front_handler(&server::on_accept, shared_from_this()));
+  acceptor_.async_accept(boost::beast::bind_front_handler(&listener::on_accept,
+                                                          shared_from_this()));
 }
 
-void server::on_accept(const boost::system::error_code &ec,
-                       boost::asio::ip::tcp::socket socket) {
+void listener::on_accept(const boost::system::error_code &ec,
+                         boost::asio::ip::tcp::socket socket) {
   PRINT_LOCATION;
   if (!ec) {
     boost::make_shared<connection>(std::move(socket))->start();
   }
   do_accept();
 }
-} // namespace zend
+} // namespace zend::service

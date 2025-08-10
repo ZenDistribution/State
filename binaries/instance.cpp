@@ -12,13 +12,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <zend/instance.hpp>
+#include <zend/instance/object.hpp>
+#include <zend/instance/configuration.hpp>
 #include <zend/debug.hpp>
 
 int
 main (const int argc, char *argv[])
 {
     PRINT_LOCATION;
-    zend::instance _instance { argc, argv };
+    zend::instance::object _instance { argc, argv };
     return _instance.run();
 }

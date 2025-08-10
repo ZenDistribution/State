@@ -24,8 +24,6 @@ inline void print_location(
     const std::source_location loc = std::source_location::current()) noexcept {
   std::cout << loc.file_name() << ":" << loc.line() << " "
             << loc.function_name() << '\n';
-  BOOST_ASIO_HANDLER_LOCATION(
-      (loc.file_name(), static_cast<int>(loc.line()), loc.function_name()));
 }
 
 #define PRINT_LOCATION                                                         \

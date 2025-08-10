@@ -12,28 +12,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef ZEND_SERVICE_HPP
-#define ZEND_SERVICE_HPP
+#ifndef ZEND_SERVICE_OBJECT_HPP
+#define ZEND_SERVICE_OBJECT_HPP
 
 #include <boost/asio/io_context.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
-#include <zend/configuration.hpp>
+namespace zend::service {
 
-namespace zend {
+class configuration;
 
-class service {
-  configuration configuration_;
+class object {
+  boost::shared_ptr<configuration> configuration_;
   boost::asio::io_context io_context_;
 
 public:
-  service(int argc, char *argv[]);
+  object(int argc, char *argv[]);
 
   int run();
 
   void stop();
 
-  configuration &get_configuration();
+  boost::shared_ptr<configuration> get_configuration();
 };
-} // namespace zend
+} // namespace zend::service
 
-#endif // ZEND_SERVICE_HPP
+#endif // ZEND_SERVICE_OBJECT_HPP

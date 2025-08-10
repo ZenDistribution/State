@@ -14,8 +14,8 @@
 
 #pragma once
 
-#ifndef ZEND_CONNECTION_HPP
-#define ZEND_CONNECTION_HPP
+#ifndef ZEND_SERVICE_CONNECTION_HPP
+#define ZEND_SERVICE_CONNECTION_HPP
 
 #include <boost/array.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -23,7 +23,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid.hpp>
 
-namespace zend {
+namespace zend::service {
 class connection : public boost::enable_shared_from_this<connection> {
   boost::uuids::uuid id_ = boost::uuids::random_generator()();
   boost::array<char, 1024> buffer_{};
@@ -42,6 +42,6 @@ private:
   void on_write(const boost::system::error_code &ec, std::size_t length);
 };
 
-} // namespace zend
+} // namespace zend::service
 
-#endif // ZEND_CONNECTION_HPP
+#endif // ZEND_SERVICE_CONNECTION_HPP

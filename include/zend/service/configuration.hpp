@@ -12,28 +12,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef ZEND_INSTANCE_HPP
-#define ZEND_INSTANCE_HPP
+#pragma once
 
-#include <boost/asio/io_context.hpp>
+#ifndef ZEND_SERVICE_CONFIGURATION_HPP
+#define ZEND_SERVICE_CONFIGURATION_HPP
 
-#include <zend/configuration.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
-namespace zend {
-
-class instance {
-  configuration configuration_;
-  boost::asio::io_context io_context_;
+namespace zend::service {
+class configuration : public boost::enable_shared_from_this<configuration> {
+  unsigned short port_;
+  short threads_;
 
 public:
-  instance(int argc, char *argv[]);
+  configuration(unsigned short port, short threads);
+  unsigned short get_port() const;
 
-  int run();
+  void set_port(unsigned short port);
 
-  void stop();
-
-  configuration &get_configuration();
+  short get_threads() const;
 };
-} // namespace zend
+} // namespace zend::service
 
-#endif // ZEND_INSTANCE_HPP
+#endif // ZEND_SERVICE_CONFIGURATION_HPP

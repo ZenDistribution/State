@@ -14,14 +14,21 @@
 
 #pragma once
 
-#ifndef ZEND_CONFIGURATION_HPP
-#define ZEND_CONFIGURATION_HPP
+#ifndef ZEND_INSTANCE_CONFIGURATION_HPP
+#define ZEND_INSTANCE_CONFIGURATION_HPP
 
-namespace zend {
-struct configuration {
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
+#include <string>
+
+namespace zend::instance {
+class configuration : public boost::enable_shared_from_this<configuration> {
+public:
+  std::string host_;
   unsigned short port_;
   short threads_;
-};
-} // namespace zend
 
-#endif // ZEND_CONFIGURATION_HPP
+  configuration(std::string const &host, unsigned short port, short threads);
+};
+} // namespace zend::instance
+
+#endif // ZEND_INSTANCE_CONFIGURATION_HPP

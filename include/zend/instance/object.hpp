@@ -12,13 +12,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <zend/service/object.hpp>
-#include <zend/debug.hpp>
+#pragma once
 
-int
-main (const int argc, char *argv[])
-{
-    PRINT_LOCATION;
-    zend::service::object _service { argc, argv };
-    return _service.run();
-}
+#ifndef ZEND_INSTANCE_OBJECT_HPP
+#define ZEND_INSTANCE_OBJECT_HPP
+
+#include <boost/asio/io_context.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
+
+namespace zend::instance {
+
+class configuration;
+
+class object {
+  boost::shared_ptr<configuration> configuration_;
+  boost::asio::io_context io_context_;
+
+public:
+  object(int argc, char *argv[]);
+
+  int run();
+
+  void stop();
+
+  boost::shared_ptr<configuration> get_configuration();
+};
+} // namespace zend::instance
+
+#endif // ZEND_INSTANCE_OBJECT_HPP

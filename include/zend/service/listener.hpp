@@ -14,22 +14,22 @@
 
 #pragma once
 
-#ifndef ZEND_SERVER_HPP
-#define ZEND_SERVER_HPP
+#ifndef ZEND_SERVICE_LISTENER_HPP
+#define ZEND_SERVICE_LISTENER_HPP
 
 #include <boost/asio/ip/tcp.hpp>
-
 #include <boost/smart_ptr/enable_shared_from_this.hpp>
 
-namespace zend {
-struct configuration;
+namespace zend::service {
+class configuration;
 
-class server : public boost::enable_shared_from_this<server> {
-  configuration &configuration_;
+class listener : public boost::enable_shared_from_this<listener> {
+  boost::shared_ptr<configuration> configuration_;
   boost::asio::ip::tcp::acceptor acceptor_;
 
 public:
-  server(boost::asio::io_context &io_context, configuration &configuration);
+  listener(boost::asio::io_context &io_context,
+           const boost::shared_ptr<configuration> &configuration);
   void start();
 
 private:
@@ -38,6 +38,6 @@ private:
                  boost::asio::ip::tcp::socket socket);
 };
 
-} // namespace zend
+} // namespace zend::service
 
-#endif // ZEND_SERVER_HPP
+#endif // ZEND_SERVICE_LISTENER_HPP

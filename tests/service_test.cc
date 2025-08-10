@@ -23,12 +23,13 @@
 #include <boost/asio.hpp>
 
 #include <zend/debug.hpp>
-#include <zend/service.hpp>
+#include <zend/service/configuration.hpp>
+#include <zend/service/object.hpp>
 #include <zend/state.hpp>
 
 class service_test : public ::testing::Test {
 public:
-  std::unique_ptr<zend::service> app_;
+  std::unique_ptr<zend::service::object> service_;
   std::jthread server_thread_;
 
 protected:
@@ -36,20 +37,20 @@ protected:
     int argc = 0;
     std::array<char *, 0> argv{};
 
-    app_ = std::make_unique<zend::service>(argc, argv.data());
+    service_ = std::make_unique<zend::service::object>(argc, argv.data());
 
     server_thread_ = std::jthread([this] {
       PRINT_LOCATION;
-      app_->run();
+      service_->run();
     });
 
-    while (app_->get_configuration().port_ == 0) {
+    while (service_->get_configuration()->get_port() == 0) {
       PRINT_LOCATION;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   }
 
-  void TearDown() override { app_->stop(); }
+  void TearDown() override { service_->stop(); }
 
 public:
   boost::asio::ip::tcp::socket
@@ -57,9 +58,9 @@ public:
     boost::asio::ip::tcp::resolver _resolver(io_context);
     boost::system::error_code _ec;
 
-    const auto _port = app_->get_configuration().port_;
-    const auto _endpoints =
-        _resolver.resolve("127.0.0.1", std::to_string(_port), _ec);
+    const auto _endpoints = _resolver.resolve(
+        "127.0.0.1", std::to_string(service_->get_configuration()->get_port()),
+        _ec);
 
     boost::asio::ip::tcp::socket socket(io_context);
     boost::asio::connect(socket, _endpoints, _ec);
