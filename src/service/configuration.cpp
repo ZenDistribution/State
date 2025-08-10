@@ -14,13 +14,26 @@
 
 #include <zend/service/configuration.hpp>
 
+#include <zend/debug.hpp>
+
 namespace zend::service {
 configuration::configuration(const unsigned short port, const short threads)
-    : port_(port), threads_(threads) {}
+    : port_(port), threads_(threads) {
+  PRINT_LOCATION;
+}
 
-unsigned short configuration::get_port() const { return port_; }
+unsigned short configuration::get_port() const {
+  PRINT_LOCATION;
+  return port_;
+}
 
-void configuration::set_port(const unsigned short port) { port_ = port; }
+void configuration::set_port(const unsigned short port) {
+  PRINT_LOCATION;
+  port_ = port;
+}
 
-short configuration::get_threads() const { return threads_; }
+short configuration::get_threads() const {
+  PRINT_LOCATION;
+  return threads_;
+}
 } // namespace zend::service

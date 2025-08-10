@@ -14,8 +14,12 @@
 
 #include <zend/instance/configuration.hpp>
 
+#include <zend/debug.hpp>
+
 namespace zend::instance {
 configuration::configuration(std::string const &host, const unsigned short port,
                              const short threads)
-    : host_(host), port_(port), threads_(threads) {}
+    : host_(host), port_(port), threads_(threads) {
+  PRINT_LOCATION;
+}
 } // namespace zend::instance

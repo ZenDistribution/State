@@ -23,12 +23,19 @@
 #include <boost/core/ignore_unused.hpp>
 #include <thread>
 
-namespace zend::service {
-object::object(int argc, char *argv[])
-    : configuration_(boost::make_shared<configuration>(0, 10)) {
-  boost::ignore_unused(argc, argv);
+#include <dotenv/dotenv.hpp>
 
+namespace zend::service {
+object::object(int argc, char *argv[]) {
   PRINT_LOCATION;
+
+  configuration_ = boost::make_shared<configuration>(
+      static_cast<unsigned short>(
+          std::stoi(dotenv::getenv("SERVICE_PORT", "0"))),
+      static_cast<short>(
+          std::max(1, std::stoi(dotenv::getenv("THREADS", "4")))));
+
+  boost::ignore_unused(argc, argv);
 }
 
 int object::run() {
@@ -51,9 +58,13 @@ int object::run() {
   return EXIT_SUCCESS;
 }
 
-void object::stop() { io_context_.stop(); }
+void object::stop() {
+  PRINT_LOCATION;
+  io_context_.stop();
+}
 
 boost::shared_ptr<configuration> object::get_configuration() {
+  PRINT_LOCATION;
   return configuration_;
 }
 } // namespace zend::service

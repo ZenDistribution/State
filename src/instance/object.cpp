@@ -22,10 +22,18 @@
 
 #include <zend/debug.hpp>
 
+#include <dotenv/dotenv.hpp>
+
 namespace zend::instance {
-object::object(int argc, char *argv[])
-    : configuration_(boost::make_shared<configuration>("127.0.0.1", 0, 10)) {
+object::object(int argc, char *argv[]) {
   PRINT_LOCATION;
+
+  configuration_ = boost::make_shared<configuration>(
+      dotenv::getenv("SERVICE_HOST", "127.0.0.1"),
+      static_cast<unsigned short>(
+          std::stoi(dotenv::getenv("SERVICE_PORT", "0"))),
+      static_cast<short>(
+          std::max(1, std::stoi(dotenv::getenv("THREADS", "4")))));
 
   boost::ignore_unused(argc, argv);
 }
@@ -36,9 +44,13 @@ int object::run() {
   return EXIT_SUCCESS;
 }
 
-void object::stop() { io_context_.stop(); }
+void object::stop() {
+  PRINT_LOCATION;
+  io_context_.stop();
+}
 
 boost::shared_ptr<configuration> object::get_configuration() {
+  PRINT_LOCATION;
   return configuration_;
 }
 } // namespace zend::instance
