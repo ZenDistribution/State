@@ -338,14 +338,11 @@ inline void dotenv::do_init(int flags, const char *filename) {
     unsigned int i = 1;
 
     while (getline(file, line)) {
-      const auto len = line.length();
-      if (len == 0 || line[0] == '#') {
+      if (const auto len = line.length(); len == 0 || line[0] == '#') {
         continue;
       }
 
-      const auto pos = line.find("=");
-
-      if (pos == std::string::npos) {
+      if (const auto pos = line.find("="); pos == std::string::npos) {
         std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
                   << ": '" << line << "'" << std::endl;
       } else {
@@ -353,15 +350,14 @@ inline void dotenv::do_init(int flags, const char *filename) {
         auto line_stripped = strip_quotes(trim_copy(line.substr(pos + 1)));
 
         // resolve any contained variable expressions in 'line_stripped'
-        auto p = resolve_vars(i, line_stripped);
-        bool ok = p.second;
-        if (!ok) {
+        auto [fst, snd] = resolve_vars(i, line_stripped);
+        if (bool ok = snd; !ok) {
           std::cout << "dotenv: Ignoring ill-formed assignment on line " << i
                     << ": '" << line << "'" << std::endl;
         } else {
 
           // variable resolved ok, set as environment variable
-          const auto &val = p.first;
+          const auto &val = fst;
           setenv(name.c_str(), val.c_str(), ~flags & dotenv::Preserve);
         }
       }
@@ -377,9 +373,8 @@ inline std::string dotenv::strip_quotes(const std::string &str) {
     return str;
 
   const char first = str[0];
-  const char last = str[len - 1];
 
-  if (first == last && ('"' == first || '\'' == first))
+  if (const char last = str[len - 1]; first == last && ('"' == first || '\'' == first))
     return str.substr(1, len - 2);
 
   return str;
