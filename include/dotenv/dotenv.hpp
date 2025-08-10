@@ -115,10 +115,10 @@ private:
   static void rtrim(std::string &s);
   static void trim(std::string &s);
   static std::string trim_copy(std::string s);
-  static size_t find_var_start(const std::string &str, size_t pos,
+  static size_t find_var_start(std::string_view str, size_t pos,
                                std::string &start_tag);
-  static size_t find_var_end(const std::string &str, size_t pos,
-                             const std::string &start_tag);
+  static size_t find_var_end(std::string_view str, size_t pos,
+                             std::string_view start_tag);
 };
 
 ///
@@ -189,11 +189,12 @@ inline int setenv(const char *name, const char *value, int overwrite) {
 /// \param str  in:  string to search in
 /// \param pos  in:  search from position
 /// \param pos  out: start tag found
+/// \param start_tag
 ///
 /// \returns The start position of next variable expression or std::string::npos
 /// if not found
 ///
-inline size_t dotenv::find_var_start(const std::string &str, size_t pos,
+inline size_t dotenv::find_var_start(std::string_view str, size_t pos,
                                      std::string &start_tag) {
   size_t p1 = str.find('$', pos);
   size_t p2 = str.find("${", pos);
@@ -210,12 +211,13 @@ inline size_t dotenv::find_var_start(const std::string &str, size_t pos,
 /// \param str  in:  string to search in
 /// \param pos  in:  search from position (result from find_var_start)
 /// \param pos  in:  start tag
+/// \param start_tag
 ///
 /// \returns The next end position of variable expression or std::string::npos
 /// if not found
 ///
-inline size_t dotenv::find_var_end(const std::string &str, size_t pos,
-                                   const std::string &start_tag) {
+inline size_t dotenv::find_var_end(std::string_view str, size_t pos,
+                                   const std::string_view start_tag) {
   char end_tag = (start_tag == "${") ? '}' : ' ';
   size_t pos_end = str.find(end_tag, pos);
   // special case when $VARIABLE is at end of str with no trailing whitespace
