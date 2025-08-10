@@ -12,9 +12,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <zend/state.hpp>
+#ifndef ZEND_APP_HPP
+#define ZEND_APP_HPP
 
-TEST(state_test, get_version) {
-  EXPECT_EQ(zend::state::state::get_version(), "1.0.0");
-}
+#include <boost/asio/io_context.hpp>
+
+#include <zend/configuration.hpp>
+
+namespace zend {
+
+class app {
+  configuration configuration_;
+  boost::asio::io_context io_context_;
+
+public:
+  app(int argc, char *argv[]);
+
+  int run();
+
+  void stop();
+
+  configuration &get_configuration();
+};
+} // namespace zend
+
+#endif // ZEND_APP_HPP

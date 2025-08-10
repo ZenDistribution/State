@@ -14,17 +14,14 @@
 
 #pragma once
 
-#ifndef ZEND_STATE_STATE_HPP
-#define ZEND_STATE_STATE_HPP
+#ifndef ZEND_CONFIGURATION_HPP
+#define ZEND_CONFIGURATION_HPP
 
-#include <memory>
+namespace zend {
+struct configuration {
+  unsigned short port_;
+  short threads_;
+};
+} // namespace zend
 
-namespace zend::state {
-    class state : public std::enable_shared_from_this<state> {
-        static constexpr char version_[] = "1.0.0";
-    public:
-        static constexpr std::string_view get_version() noexcept { return version_; }
-    };
-}
-
-#endif // ZEND_STATE_STATE_HPP
+#endif // ZEND_CONFIGURATION_HPP

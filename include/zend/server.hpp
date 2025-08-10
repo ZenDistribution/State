@@ -12,9 +12,32 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
-#include <zend/state.hpp>
+#pragma once
 
-TEST(state_test, get_version) {
-  EXPECT_EQ(zend::state::state::get_version(), "1.0.0");
-}
+#ifndef ZEND_SERVER_HPP
+#define ZEND_SERVER_HPP
+
+#include <boost/asio/ip/tcp.hpp>
+
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
+
+namespace zend {
+struct configuration;
+
+class server : public boost::enable_shared_from_this<server> {
+  configuration &configuration_;
+  boost::asio::ip::tcp::acceptor acceptor_;
+
+public:
+  server(boost::asio::io_context &io_context, configuration &configuration);
+  void start();
+
+private:
+  void do_accept();
+  void on_accept(const boost::system::error_code &ec,
+                 boost::asio::ip::tcp::socket socket);
+};
+
+} // namespace zend
+
+#endif // ZEND_SERVER_HPP

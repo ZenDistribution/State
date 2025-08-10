@@ -45,3 +45,7 @@ if(BUILD_TESTS)
     include(GoogleTest)
     gtest_discover_tests(state_tests)
 endif ()
+
+add_executable(state_app main.cpp)
+target_link_libraries(state_app PRIVATE state)
+target_include_directories(state_app PRIVATE ${Boost_INCLUDE_DIRS})
