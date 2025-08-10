@@ -31,7 +31,7 @@ class object {
 public:
   object(int argc, char *argv[]);
 
-  int run();
+  static int run();
 
   void stop();
 

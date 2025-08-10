@@ -308,7 +308,9 @@ inline bool dotenv::handle_var(size_t iline,
 inline std::pair<std::string, bool>
 dotenv::resolve_vars(size_t iline, const std::string& str) {
   std::string resolved;
-  size_t pos = 0, pre_pos = 0, nvar = 0;
+  size_t pos = 0;
+  size_t pre_pos = 0;
+  size_t nvar = 0;
 
   for (;;) {
     std::string start_tag;
